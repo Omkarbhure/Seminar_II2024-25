@@ -1,0 +1,93 @@
+11)Write a PHP program to perform search operation on the student records using AJAX.
+Index.html
+Search.php
+<?php
+// DB Connection
+$conn = new mysqli("localhost", "root", "", "student_db");
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Search with AJAX</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+background: #f9f9f9;
+padding: 40px;
+text-align: center;
+}
+input {
+padding: 10px;
+width: 300px;
+font-size: 16px;
+}
+button {
+padding: 10px 20px;
+margin-left: 10px;
+background-color: #0984e3;
+color: white;
+border: none;
+border-radius: 5px;
+}
+table {
+A
+margin: 20px auto;
+border-collapse: collapse;
+width: 60%;
+}
+th, td {
+padding: 10px;
+border: 1px solid #ccc;
+}
+#result {
+margin-top: 30px;
+}
+</style>
+<script>
+function searchStudent() {
+var query = document.getElementById("search").value;
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "search.php", true);
+xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xhr.onload = function () {
+document.getElementById("result").innerHTML = xhr.responseText;
+};
+xhr.send("query=" + encodeURIComponent(query));
+}
+</script>
+</head>
+<body>
+<h2> Search Student Records</h2>
+<input type="text" id="search" placeholder="Enter name or roll number">
+<button onclick="searchStudent()">Search</button>
+<div id="result"></div>
+</body>
+A
+</html>
+if ($conn->connect_error) {
+die("Connection failed: " . $conn->connect_error);
+}
+$output = "";
+if (isset($_POST['query'])) {
+$search = $conn->real_escape_string($_POST['query']);
+$sql = "SELECT * FROM students
+WHERE name LIKE '%$search%' OR roll LIKE '%$search%'";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+$output .= "<table>
+<tr><th>ID</th><th>Name</th><th>Roll No</th><th>Branch</th></tr>";
+while ($row = $result->fetch_assoc()) {
+$output .= "<tr>
+<td>{$row['id']}</td>
+<td>{$row['name']}</td>
+<td>{$row['roll']}</td>
+<td>{$row['branch']}</td>
+</tr>";
+}
+$output .= "</table>";
+} else {
+$output = "No student found.";
+}
+}
+echo $output;
+$conn->close();
+?>
